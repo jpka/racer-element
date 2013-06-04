@@ -6,6 +6,16 @@
     <link rel="import" href="/base/component.html"/>
   </head>
   <body>
+    <element name="element-with-model">
+      <template>
+        <div id="div">{{ model.text }}</div>
+      </template>
+      <script>
+        Polymer.register(this, {
+          model: {}
+        });
+      </script>
+    </element>
   </body>
 </html>
 

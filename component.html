@@ -1,10 +1,30 @@
-<element name="my-element">
+<element name="jpka-racer-element">
   <template>
     <style>
       @host {}
     </style>  
   </template>
   <script>
-    Polymer.register(this, {});
+    Polymer.register(this, {
+      set child(element) {
+        this._child = element;
+        element.id = "child";
+        this.webkitShadowRoot.appendChild(element);
+      },
+      get child() {
+        return this._child;
+      },
+      updateModel: function() {
+        this._child.model = this._model.get();
+      },
+      set model(model) {
+        this._model = model;
+        this.updateModel();
+        model.on("change", "**", this.updateModel.bind(this));
+      },
+      get model() {
+        return this._model;
+      }
+    });
   </script>
 </element>
