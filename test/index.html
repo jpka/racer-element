@@ -3,12 +3,11 @@
 <html>
   <head>
     <script src="/base/node_modules/Polymer/polymer.min.js"></script>
-    <link rel="import" href="/base/component.html"/>
+    <link rel="import" href="/base/index.html"/>
   </head>
   <body>
     <element name="element-with-model">
       <template>
-        <div id="div">{{ model.text }}</div>
       </template>
       <script>
         Polymer.register(this, {
@@ -16,6 +15,10 @@
         });
       </script>
     </element>
+
+    <racer-element id="element">
+      <element-with-model id="child"/>
+    </racer-element>
   </body>
 </html>
 

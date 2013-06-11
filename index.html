@@ -1,0 +1,57 @@
+<element name="racer-element">
+  <template>
+    <style>
+      @host {}
+    </style>  
+  </template>
+  <script>
+    Polymer.register(this, {
+      ready: function() {
+        var racer = (this.parentNode && this.parentNode.racer) || window.racer;
+        if (racer) {
+          this.racer = racer;
+        }
+      },
+      set racer(racer) {
+        var self = this;
+        racer.ready(function(model) {
+          self.model = model;
+        });
+      },
+      set child(element) {
+        while (this.firstElementChild) {
+          this.removeChild(this.firstElementChild);
+        }
+        this.appendChild(element);
+        if (this._model) {
+          this.update();
+        }
+      },
+      get child() {
+        return this.firstElementChild;
+      },
+      set model(model) {
+        var self = this;
+        this._model = model;
+
+        model.on("change", "*", this.onChange.bind(this));
+        model.subscribe(function() {
+          if (self.child) {
+            self.update();
+          }
+          self.dispatchEvent(new Event("subscribed"));
+        });
+      },
+      get model() {
+        return this._model;
+      },
+      update: function(data) {
+        this.child.model = data || this._model.get();
+      },
+      onChange: function(name, value) {
+        if (!this.child || !this.child.model) return;
+        this.child.model[name] = value;
+      }
+    });
+  </script>
+</element>
