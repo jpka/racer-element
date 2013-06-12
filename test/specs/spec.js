@@ -14,10 +14,14 @@ describe("racer-element", function() {
         this.events[name] = cb;
       },
       subscribe: function(cb) {
-        cb();
+        setTimeout(cb, 500);
       },
-      trigger: function(name, args) {
-        this.events[name].apply(this, args);
+      emit: function() {
+        this.events["all"].apply(this, arguments);
+      },
+      at: function() {
+        this.atWasCalled = true;
+        return this;
       }
     };
   },
@@ -54,7 +58,7 @@ describe("racer-element", function() {
 
   it("should subscribe to and update the child's model when a racer model is attached", function(done) {
     var model = new Model();
-    element.addEventListener("subscribed", function() {
+    element.addEventListener("subscribe", function() {
       expect(child.model).to.deep.equal(modelData);
       done();
     });
@@ -63,11 +67,18 @@ describe("racer-element", function() {
 
   it("should update the child's model when the racer model changes", function(done) {
     var model = new Model();
-    element.addEventListener("subscribed", function() {
-      model.trigger("change", ["text", "otherText"]);
+    element.addEventListener("subscribe", function() {
+      model.emit("text", "change", "otherText");
       expect(child.model.text).to.equal("otherText");
       done();
     });
     element.model = model;
+  });
+
+  it("should call at on itself if at argument is given", function() {
+    var model = new Model();
+    element.at = "at";
+    element.model = model
+    expect(model.atWasCalled).to.be.true;
   });
 });

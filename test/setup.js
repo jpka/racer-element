@@ -6,4 +6,5 @@ before(function(done) {
   fixtures.window().addEventListener("WebComponentsReady", function() {
     done();
   });
+  fixtures.window().console = console;
 });
