@@ -1,9 +1,7 @@
 describe("racer-element", function() {
   var element,
   child,
-  modelData = {
-    text: "text"
-  },
+  modelData,
   Model = function() {
     return {
       events: {},
@@ -22,6 +20,9 @@ describe("racer-element", function() {
       at: function() {
         this.atWasCalled = true;
         return this;
+      },
+      set: function() {
+        this.setWasCalledWith = arguments;
       }
     };
   },
@@ -38,8 +39,12 @@ describe("racer-element", function() {
   });
 
   beforeEach(function() {
+    modelData = {
+      text: "text"
+    };
     element = doc.createElement("racer-element");
     child = doc.createElement("element-with-model");
+    child.model = {};
     element.child = child;
     element.path = "some.path";
   });
@@ -80,5 +85,10 @@ describe("racer-element", function() {
     element.at = "at";
     element.model = model
     expect(model.atWasCalled).to.be.true;
+  });
+
+  it("watches the child model for changes and sets the racer model accordingly", function() {
+    element.child.model.text = "otherText";
+    expect(element.model.setWasCalledWith).to.deep.equal(["text", "otherText"]);
   });
 });
