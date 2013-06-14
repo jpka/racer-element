@@ -2,7 +2,7 @@ describe("racer-element", function() {
   var element,
   child,
   modelData,
-  Model = function() {
+  Model = function(modelData) {
     return {
       events: {},
       get: function() {
@@ -31,38 +31,52 @@ describe("racer-element", function() {
   before(function() { 
     var win = fixtures.window();
     doc = win.document;
-    win.racer = {
-      ready: function(cb) {
-        cb(new Model());
-      }
-    };
   });
 
-  beforeEach(function() {
+  beforeEach(function(done) {
     modelData = {
       text: "text"
     };
     element = doc.createElement("racer-element");
     child = doc.createElement("element-with-model");
-    child.model = {};
     element.child = child;
-    element.path = "some.path";
+    element.racer = {
+      ready: function(cb) {
+        cb(new Model(modelData));
+      }
+    };
+    var fn = function() {
+      this.removeEventListener("subscribe", fn);
+      done();
+    };
+    element.addEventListener("subscribe", fn);
   });
 
   it("should have a shorthand for getting the child", function() {
-    expect(doc.querySelector("#element").child).to.deep.equal(doc.querySelector("#child"));
+    expect(doc.querySelector("#element").child).to.exist;
   });
 
   it("should have a shorthand for setting the child", function() {
     expect(element.child).to.deep.equal(child);
   });
 
-  it("should have set the model from the global racer element", function() {
+  it("should have set the model and the model's data from the global racer element", function() {
     expect(element.model).to.exist;
+    expect(element.child.model).to.deep.equal(modelData);
+  });
+
+  it("should set the data from a setted model to the child's model", function(done) {
+    element = doc.createElement("racer-element");
+    element.child = doc.createElement("element-with-model");
+    element.addEventListener("subscribe", function() {
+      expect(element.child.model).to.deep.equal({a:2});
+      done();
+    });
+    element.model = new Model({a: 2});
   });
 
   it("should subscribe to and update the child's model when a racer model is attached", function(done) {
-    var model = new Model();
+    var model = new Model(modelData);
     element.addEventListener("subscribe", function() {
       expect(child.model).to.deep.equal(modelData);
       done();
@@ -71,7 +85,7 @@ describe("racer-element", function() {
   });
 
   it("should update the child's model when the racer model changes", function(done) {
-    var model = new Model();
+    var model = new Model(modelData);
     element.addEventListener("subscribe", function() {
       model.emit("text", "change", "otherText");
       expect(child.model.text).to.equal("otherText");
@@ -81,7 +95,7 @@ describe("racer-element", function() {
   });
 
   it("should call at on itself if at argument is given", function() {
-    var model = new Model();
+    var model = new Model(modelData);
     element.at = "at";
     element.model = model
     expect(model.atWasCalled).to.be.true;
