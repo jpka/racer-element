@@ -6,13 +6,17 @@ describe("racer-element", function() {
     return {
       events: {},
       get: function() {
-        return modelData;
+        return this.data;
       },
       on: function(name, path, cb) {
         this.events[name] = cb;
       },
       subscribe: function(cb) {
-        setTimeout(cb, 500);
+        var self = this;
+        setTimeout(function() {
+          self.data = modelData;
+          cb();
+        }, 500);
       },
       emit: function() {
         this.events["all"].apply(this, arguments);
@@ -25,8 +29,7 @@ describe("racer-element", function() {
   doc;
 
   before(function() { 
-    var win = fixtures.window();
-    doc = win.document;
+    doc = fixtures.window().document;
   });
 
   beforeEach(function(done) {
@@ -110,6 +113,15 @@ describe("racer-element", function() {
     element.model = model;
   });
 
+  it("should just update the child's model if a populated racer model is attached", function(done) {
+    var model = new Model(modelData);
+    model.subscribe(function() {
+      element.model = model;
+      expect(child.model).to.deep.equal(modelData);
+      done();
+    });
+  });
+
   it("should update the child's model when the racer model changes", function(done) {
     var model = new Model(modelData);
     element.addEventListener("subscribe", function() {
@@ -125,4 +137,5 @@ describe("racer-element", function() {
     element.child.model.text = "otherText";
     expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
   });
+
 });

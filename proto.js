@@ -51,9 +51,13 @@ module.exports = {
 
     this.listen();
 
-    model.subscribe(function() {
-      self.trigger("subscribe");
-    });
+    if (model.get(this.at | "")) {
+      this.update();
+    } else {
+      model.subscribe(function() {
+        self.trigger("subscribe");
+      });
+    }
   },
   get model() {
     return this._model;
