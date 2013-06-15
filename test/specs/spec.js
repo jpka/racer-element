@@ -46,10 +46,10 @@ describe("racer-element", function() {
       }
     };
     var fn = function() {
-      this.removeEventListener("subscribe", fn);
+      this.removeEventListener("model:load", fn);
       done();
     };
-    element.addEventListener("subscribe", fn);
+    element.addEventListener("model:load", fn);
   });
 
   it("should have a shorthand for getting the child", function() {
@@ -97,7 +97,7 @@ describe("racer-element", function() {
   it("should set the data from a setted model to the child's model", function(done) {
     element = doc.createElement("racer-element");
     element.child = doc.createElement("element-with-model");
-    element.addEventListener("subscribe", function() {
+    element.addEventListener("model:load", function() {
       expect(element.child.model).to.deep.equal({a:2});
       done();
     });
@@ -106,25 +106,29 @@ describe("racer-element", function() {
 
   it("should subscribe to and update the child's model when a racer model is attached", function(done) {
     var model = new Model(modelData);
-    element.addEventListener("subscribe", function() {
+
+    element.addEventListener("model:load", function() {
       expect(child.model).to.deep.equal(modelData);
       done();
     });
     element.model = model;
   });
 
-  it("should just update the child's model if a populated racer model is attached", function(done) {
+  it("should signal model load event even if a populated racer model is attached", function(done) {
     var model = new Model(modelData);
+
     model.subscribe(function() {
+      element.on("model:load", function() {
+        expect(child.model).to.deep.equal(modelData);
+        done();
+      });
       element.model = model;
-      expect(child.model).to.deep.equal(modelData);
-      done();
     });
   });
 
   it("should update the child's model when the racer model changes", function(done) {
     var model = new Model(modelData);
-    element.addEventListener("subscribe", function() {
+    element.addEventListener("model:load", function() {
       element.at = "a.b";
       model.emit("a.b.text", "change", "otherText");
       expect(child.model.text).to.equal("otherText");

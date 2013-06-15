@@ -52,10 +52,10 @@ module.exports = {
     this.listen();
 
     if (model.get(this.at | "")) {
-      this.update();
+      this.trigger("model:load");
     } else {
       model.subscribe(function() {
-        self.trigger("subscribe");
+        self.trigger("model:load");
       });
     }
   },
@@ -94,7 +94,7 @@ module.exports = {
     this.child.model = data || this._model.get();
     this.watchChildModel();
   },
-  onSubscribe: function() {
+  onModelLoad: function() {
     this.update();
   },
   onChange: function(name, value) {
