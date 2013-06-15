@@ -17,10 +17,6 @@ describe("racer-element", function() {
       emit: function() {
         this.events["all"].apply(this, arguments);
       },
-      at: function() {
-        this.atWasCalled = true;
-        return this;
-      },
       set: function() {
         this.setWasCalledWith = arguments;
       }
@@ -38,6 +34,7 @@ describe("racer-element", function() {
       text: "text"
     };
     element = doc.createElement("racer-element");
+    element.at = "a.b";
     child = doc.createElement("element-with-model");
     element.child = child;
     element.racer = {
@@ -65,6 +62,35 @@ describe("racer-element", function() {
     expect(element.child.model).to.deep.equal(modelData);
   });
 
+  describe("event listening", function() {
+    var data = "data";
+
+    it("should listen to events destined to it and resolve them accordingly if path is defined", function(done) {
+      var model = new Model({});
+      element.at = "a.b";
+      element.model = model;
+
+      element.on("change", function(d) {
+        expect(d).to.equal(data);
+        done();
+      });
+      model.emit("a.b", "change", data);
+    });
+
+    it("should listen to events destined to childs and provide the path resolved from it's own", function(done) {
+      var model = new Model({});
+      element.at = "a.b";
+      element.model = model;
+
+      element.on("change", function(path, d) {
+        expect(path).to.equal(path);
+        expect(d).to.equal(data);
+        done();
+      });
+      model.emit("a.b.c", "change", data);
+    });
+  });
+
   it("should set the data from a setted model to the child's model", function(done) {
     element = doc.createElement("racer-element");
     element.child = doc.createElement("element-with-model");
@@ -87,22 +113,16 @@ describe("racer-element", function() {
   it("should update the child's model when the racer model changes", function(done) {
     var model = new Model(modelData);
     element.addEventListener("subscribe", function() {
-      model.emit("text", "change", "otherText");
+      element.at = "a.b";
+      model.emit("a.b.text", "change", "otherText");
       expect(child.model.text).to.equal("otherText");
       done();
     });
     element.model = model;
   });
 
-  it("should call at on itself if at argument is given", function() {
-    var model = new Model(modelData);
-    element.at = "at";
-    element.model = model
-    expect(model.atWasCalled).to.be.true;
-  });
-
   it("watches the child model for changes and sets the racer model accordingly", function() {
     element.child.model.text = "otherText";
-    expect(element.model.setWasCalledWith).to.deep.equal(["text", "otherText"]);
+    expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
   });
 });

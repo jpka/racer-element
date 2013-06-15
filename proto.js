@@ -1,4 +1,4 @@
-var watch = require("watchjs").watch;
+var wjs = require("watchjs");
 
 module.exports = {
   ready: function() {
@@ -19,7 +19,12 @@ module.exports = {
     if (on = this["on" + fname]) {
       on.apply(this, data);
     }
-    this.dispatchEvent(new Event(name, {detail: data}));
+    this.dispatchEvent(new CustomEvent(name, {detail: data}));
+  },
+  on: function(type, cb) {
+    this.addEventListener(type, function(e) {
+      cb.apply({}, e.detail);
+    });
   },
   set child(element) {
     var container = this.$.container;
@@ -42,9 +47,6 @@ module.exports = {
   },
   set model(model) {
     var self = this;
-    if (this.at) {
-      model = model.at(this.at);
-    }
     this._model = model;
 
     this.listen();
@@ -59,15 +61,26 @@ module.exports = {
   listen: function() {
     var self = this;
     this._model.on("all", "**", function(path, ev, data, oldData) {
-      self.trigger(ev, path, data, oldData);
+      var args = [ev, path, data, oldData];
+
+      if (self.at && self.at !== "") {
+        if (path.indexOf(self.at) === -1) return;
+        if (path === self.at) {
+          args.splice(1, 1);
+        } else {
+          args[1] = args[1].replace(self.at + ".", "");
+        }
+      }
+      self.trigger.apply(self, args);
     });
   },
   watchChildModel: function() {
     var self = this;
 
     Object.keys(self.child.model).forEach(function(key) {
-      watch(self.child.model, key, function(name, action, newValue) {
+      wjs.watch(self.child.model, key, function(name, action, newValue) {
         if (!self._model) return;
+        if (self.at) key = self.at + "." + key;
         self._model.set(key, newValue);
       });
     });
