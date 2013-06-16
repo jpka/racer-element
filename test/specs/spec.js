@@ -23,6 +23,9 @@ describe("racer-element", function() {
       },
       set: function() {
         this.setWasCalledWith = arguments;
+      },
+      del: function() {
+        this.delWasCalledWith = arguments;
       }
     };
   },
@@ -142,4 +145,8 @@ describe("racer-element", function() {
     expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
   });
 
+  it("can delete a member", function() {
+    element.del("c");
+    expect(element.model.delWasCalledWith).to.deep.equal(["a.b.c"]);
+  });
 });

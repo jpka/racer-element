@@ -73,6 +73,10 @@ module.exports = {
   get model() {
     return this._model;
   },
+  del: function(path) {
+    if (this.at) path = this.at + "." + path;
+    this._model.del(path);
+  },
   listen: function() {
     var self = this;
     this._model.on("all", "**", function(path, ev, data, oldData) {
