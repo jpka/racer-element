@@ -51,7 +51,7 @@ module.exports = {
 
     this.listen();
 
-    if (model.get(this.at | "")) {
+    if (model.get(this.at)) {
       this.trigger("model:load");
     } else {
       model.subscribe(function() {
@@ -82,27 +82,34 @@ module.exports = {
       self.trigger.apply(self, args);
     });
   },
-  watchChildModel: function() {
-    var self = this;
-
-    Object.keys(self.child.model).forEach(function(key) {
-      wjs.watch(self.child.model, key, function(name, action, newValue) {
-        if (!self._model) return;
-        if (self.at) key = self.at + "." + key;
-        self._model.set(key, newValue);
-      });
-    });
-  },
   update: function(data) {
-    if (!this.child || !this.child.model || (!data && !this._model)) return;
-    this.child.model = data || this._model.get();
-    this.watchChildModel();
+    if (!this.child || !this._model) return;
+    var data = data || this._model.get(),
+    self = this,
+    dashed,
+    key;
+
+    for (key in data) {
+      dashed = "_" + key;
+      this.child[dashed] = data[key];
+      this.child[key] = null;
+      Object.defineProperty(this.child, key, {
+        set: function(value) {
+          if (self.at) key = self.at + "." + key;
+          self._model.set(key, value);
+          this[dashed] = value;
+        },
+        get: function() {
+          return this[dashed];
+        }
+      });
+    }
   },
   onModelLoad: function() {
     this.update();
   },
   onChange: function(name, value) {
-    if (!this.child || !this.child.model) return;
-    this.child.model[name] = value;
+    if (!this.child) return;
+    this.child[name] = value;
   }
 };
