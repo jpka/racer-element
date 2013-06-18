@@ -123,7 +123,6 @@ describe("racer-element", function() {
     element.addEventListener("model:load", function() {
       element.at = "a.b";
       model.emit("a.b.text", "change", "otherText");
-      console.log(child.text);
       expect(child.text).to.equal("otherText");
       done();
     });

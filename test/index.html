@@ -7,15 +7,19 @@
   </head>
   <body>
     <element name="generic-element" attributes="text">
+      <template>
+        <div id="div">{{ text }}</div>
+      </template>
       <script>
         Polymer.register(this, {
           text: ""
         });
       </script>
     </element>
+    <generic-element text="text"></generic-element>
 
     <racer-element id="element">
-      <element-with-model id="child"/>
+      <generic-element id="child"/>
     </racer-element>
 
     <racer-element>

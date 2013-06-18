@@ -1,5 +1,3 @@
-var wjs = require("watchjs");
-
 module.exports = {
   ready: function() {
     if (this.firstElementChild) {
