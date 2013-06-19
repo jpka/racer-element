@@ -17,7 +17,7 @@ module.exports = {
     if (on = this["on" + fname]) {
       on.apply(this, data);
     }
-    this.dispatchEvent(new CustomEvent(name, {detail: data}));
+    this.fire(name, data);
   },
   on: function(type, cb) {
     this.addEventListener(type, function(e) {
