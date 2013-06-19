@@ -1,3 +1,16 @@
+function observeChildModelProperty(self, key) {
+  Object.defineProperty(self.child.model, key, {
+    set: function(value) {
+      if (self.at) key = self.at + "." + key;
+      self._model.set(key, value);
+      self._childModel[key] = value;
+    },
+    get: function() {
+      return self._childModel[key];
+    }
+  });
+}
+
 module.exports = {
   ready: function() {
     if (this.firstElementChild) {
@@ -31,8 +44,6 @@ module.exports = {
       container.removeChild(container.firstElementChild);
     }
     this.$.container.appendChild(element);
-
-    if (!element.model) element.model = {};
 
     this.update();
   },
@@ -84,24 +95,17 @@ module.exports = {
   },
   _childModel: {},
   update: function(data) {
-    if (!this.child || !this._model) return;
-    var data = data || this._model.get(),
+    var data,
     self = this,
     key;
+    if (!this.child || !this.child.model || !this._model) return;
+    data = data || this._model.get();
 
     for (key in data) {
       this._childModel[key] = data[key];
-      this.child.model[key] = null;
-      Object.defineProperty(this.child.model, key, {
-        set: function(value) {
-          if (self.at) key = self.at + "." + key;
-          self._model.set(key, value);
-          self._childModel[key] = value;
-        },
-        get: function() {
-          return self._childModel[key];
-        }
-      });
+      if (!this.child.model[key] || !Object.getOwnPropertyDescriptor(this.child.model, key).get) {
+        observeChildModelProperty(self, key);
+      }
     }
   },
   onModelLoad: function() {

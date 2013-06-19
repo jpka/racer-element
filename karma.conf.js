@@ -14,6 +14,7 @@ files = [
   'node_modules/chai/chai.js',
   {pattern: 'index.html', watched: true, served: true, included: false},
   {pattern: 'test/index.html', watched: true, served: true, included: false},
+  {pattern: 'test/model.js', watched: true, served: true, included: false},
   'node_modules/js-fixtures/fixtures.js',
   'test/setup.js',
   'test/specs/**/*.js'

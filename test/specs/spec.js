@@ -2,33 +2,7 @@ describe("racer-element", function() {
   var element,
   child,
   modelData,
-  Model = function(modelData) {
-    return {
-      events: {},
-      get: function() {
-        return this.data;
-      },
-      on: function(name, path, cb) {
-        this.events[name] = cb;
-      },
-      subscribe: function(cb) {
-        var self = this;
-        setTimeout(function() {
-          self.data = modelData;
-          cb();
-        }, 500);
-      },
-      emit: function() {
-        this.events["all"].apply(this, arguments);
-      },
-      set: function() {
-        this.setWasCalledWith = arguments;
-      },
-      del: function() {
-        this.delWasCalledWith = arguments;
-      }
-    };
-  },
+  Model,
   doc;
 
   before(function() { 
@@ -36,23 +10,25 @@ describe("racer-element", function() {
   });
 
   beforeEach(function(done) {
+    var fn = function() {
+      this.removeEventListener("model:load", fn);
+      done();
+    };
+    Model = fixtures.window().Model;
     modelData = {
       text: "text"
     };
-    element = doc.createElement("racer-element");
+    element = fixtures.window().document.createElement("racer-element");
+    fixtures.window().document.body.appendChild(element);
     element.at = "a.b";
-    child = doc.createElement("generic-element");
+    child = fixtures.window().document.createElement("element-with-model");
     element.child = child;
+    element.addEventListener("model:load", fn);
     element.racer = {
       ready: function(cb) {
         cb(new Model(modelData));
       }
     };
-    var fn = function() {
-      this.removeEventListener("model:load", fn);
-      done();
-    };
-    element.addEventListener("model:load", fn);
   });
 
   it("should have a shorthand for getting the child", function() {
@@ -65,7 +41,7 @@ describe("racer-element", function() {
 
   it("should have set the model and the model's data from the global racer element", function() {
     expect(element.model).to.exist;
-    expect(element.child.model).to.deep.equal(modelData);
+    expect(element.child.model.text).to.equal(modelData.text);
   });
 
   describe("event listening", function() {
@@ -99,7 +75,7 @@ describe("racer-element", function() {
 
   it("should set the data from a setted model to the child's model", function(done) {
     element = doc.createElement("racer-element");
-    element.child = doc.createElement("generic-element");
+    element.child = doc.createElement("element-with-model");
     element.addEventListener("model:load", function() {
       expect(element.child.model.a).to.equal(2);
       done();
@@ -118,20 +94,17 @@ describe("racer-element", function() {
     });
   });
 
-  it("should update the child's model when the racer model changes", function(done) {
-    var model = new Model(modelData);
-    element.addEventListener("model:load", function() {
-      element.at = "a.b";
-      model.emit("a.b.text", "change", "otherText");
-      expect(element.child.model.text).to.equal("otherText");
-      done();
-    });
-    element.model = model;
+  it("should update the child's model when the racer model changes", function() {
+    element.model.emit("a.b.text", "change", "otherText");
+    expect(element.child.model.text).to.equal("otherText");
   });
 
-  it("watches the child model for changes and sets the racer model accordingly", function() {
+  it("watches the child model for changes and sets the racer model accordingly", function(done) {
     element.child.model.text = "otherText";
-    expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
+    setTimeout(function() {
+      expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
+      done();
+    }, 1900);
   });
 
   it("can delete a member", function() {

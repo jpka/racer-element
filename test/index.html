@@ -3,10 +3,14 @@
 <html>
   <head>
     <script src="/base/node_modules/Polymer/polymer.min.js"></script>
+    <script src="/base/test/model.js"></script>
     <link rel="import" href="/base/index.html"/>
   </head>
   <body>
-    <element name="element-with-model" attributes="text">
+    <element name="element-with-model" attributes="model">
+      <template>
+        <div>{{ model.text }}</div>
+      </template>
       <script>
         Polymer.register(this, {
           model: {}
@@ -18,9 +22,13 @@
       <element-with-model id="child"/>
     </racer-element>
 
-    <racer-element>
-      <div>I want to be seen!</div>
-    </racer-element>
+    <script>
+      window.addEventListener("WebComponentsReady", function() {
+        document.querySelector("#element").model = new Model({  
+          text: "text"
+        });
+      });
+    </script>
   </body>
 </html>
 
