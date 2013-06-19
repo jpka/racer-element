@@ -107,14 +107,22 @@ describe("racer-element", function() {
     }, 1900);
   });*/
 
-  it("listens to save events and sets the racer model accordingly", function(done) {
+  it("listens to child's save events and sets the racer model accordingly", function(done) {
     element.child.model.text = "otherText";
-    element.child.fire("save");
     
-    setTimeout(function() {
+    element.addEventListener("save", function() {
       expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
       done();
-    }, 1000);
+    })
+    element.child.fire("save");
+  });
+
+  it("listens to child's delete events and deletes the model", function(done) {
+    element.addEventListener("delete", function() {
+      expect(element.model.delWasCalledWith).to.deep.equal(["a.b"]);
+      done();
+    });
+    element.child.fire("delete");
   });
 
   it("can delete a member", function() {

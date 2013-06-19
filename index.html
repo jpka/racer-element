@@ -78,8 +78,6 @@ module.exports = {
       if (!this.child.model) this.child.model = {};
     }
 
-    if (!this.turbo) this.child.addEventListener("save", this.save.bind(this));
-
     this.listen();
 
     if (model.get(this.at)) {
@@ -93,20 +91,37 @@ module.exports = {
   get model() {
     return this._model;
   },
+  resolve: function(path) {
+    var resolved = this.at || "";
+    if (path) resolved += "." + path;
+    return resolved;
+  },
   del: function(path) {
-    if (this.at) path = this.at + "." + path;
-    this._model.del(path);
+    this._model.del(this.resolve(path));
+    this.fire("delete");
   },
   set: function(key, value) {
-    this._model.set(this.at ? this.at + "." + key : key, value);
+    this._model.set(this.resolve(key), value);
   },
   listen: function() {
     var self = this;
+
+    if (!this.turbo) {
+      this.child.addEventListener("save", function(e) {
+        e.stopPropagation();
+        self.save();
+      });
+    }
+    this.child.addEventListener("delete", function(e) {
+      e.stopPropagation();
+      self.del();
+    });
+
     this._model.on("all", "**", function(path, ev, data, oldData) {
       var args = [ev, path, data, oldData];
 
       if (self.at && self.at !== "") {
-        if (path.indexOf(self.at) === -1) return;
+        if (path.indexOf(self.at) !== 0) return;
         if (path === self.at) {
           args.splice(1, 1);
         } else {
@@ -135,6 +150,7 @@ module.exports = {
     for (key in this._childModel) {
       this.set(key, this._childModel[key]);
     }
+    this.fire("save");
   },
   onModelLoad: function() {
     this.update();
