@@ -142,6 +142,9 @@ module.exports = {
     }
     this.fire("save");
   },
+  reset: function() {
+    this.child.model = this._model.get(this.at);
+  },
   onModelLoad: function() {
     this.update();
   },

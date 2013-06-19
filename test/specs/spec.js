@@ -147,4 +147,10 @@ describe("racer-element", function() {
     });
     element2.model = new Model({text: "text2"});
   });
+
+  it("reset() works", function() {
+    element.child.model.body = "thingie";
+    element.reset();
+    expect(element.child.model).to.deep.equal(modelData);
+  });
 });
