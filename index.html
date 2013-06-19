@@ -75,9 +75,7 @@ module.exports = {
 
     if (!this.child) {
       this.child = document.createElement(this.childType || "div");
-      if (!this.child.model) {
-        model = {};
-      }
+      if (!this.child.model) this.child.model = {};
     }
 
     if (!this.turbo) this.child.addEventListener("save", this.save.bind(this));
