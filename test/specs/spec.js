@@ -99,12 +99,22 @@ describe("racer-element", function() {
     expect(element.child.model.text).to.equal("otherText");
   });
 
-  it("watches the child model for changes and sets the racer model accordingly", function(done) {
+  /*it("watches the child model for changes and sets the racer model accordingly", function(done) {
     element.child.model.text = "otherText";
     setTimeout(function() {
       expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
       done();
     }, 1900);
+  });*/
+
+  it("listens to save events and sets the racer model accordingly", function(done) {
+    element.child.model.text = "otherText";
+    element.child.fire("save");
+    
+    setTimeout(function() {
+      expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
+      done();
+    }, 1000);
   });
 
   it("can delete a member", function() {

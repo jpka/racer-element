@@ -1,8 +1,9 @@
 function observeChildModelProperty(self, key) {
   Object.defineProperty(self.child.model, key, {
     set: function(value) {
-      if (self.at) key = self.at + "." + key;
-      self._model.set(key, value);
+      if (this.turbo) {
+        self.set(key, value);
+      }
       self._childModel[key] = value;
     },
     get: function() {
@@ -61,6 +62,15 @@ module.exports = {
     var self = this;
     this._model = model;
 
+    if (!this.child) {
+      this.child = document.createElement(this.childType || "div");
+      if (!this.child.model) {
+        model = {};
+      }
+    }
+
+    if (!this.turbo) this.child.addEventListener("save", this.save.bind(this));
+
     this.listen();
 
     if (model.get(this.at)) {
@@ -77,6 +87,9 @@ module.exports = {
   del: function(path) {
     if (this.at) path = this.at + "." + path;
     this._model.del(path);
+  },
+  set: function(key, value) {
+    this._model.set(this.at ? this.at + "." + key : key, value);
   },
   listen: function() {
     var self = this;
@@ -106,6 +119,12 @@ module.exports = {
         observeChildModelProperty(self, key);
       }
       this._childModel[key] = data[key];
+    }
+  },
+  save: function() {
+    var key;
+    for (key in this._childModel) {
+      this.set(key, this._childModel[key]);
     }
   },
   onModelLoad: function() {
