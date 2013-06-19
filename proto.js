@@ -81,9 +81,10 @@ module.exports = {
     return this._model;
   },
   resolve: function(path) {
-    var resolved = this.at || "";
-    if (path) resolved += "." + path;
-    return resolved;
+    var resolved = [];
+    if (this.at) resolved.push(this.at);
+    if (path) resolved.push(path);
+    return resolved.join(".");
   },
   del: function(path) {
     this._model.del(this.resolve(path));

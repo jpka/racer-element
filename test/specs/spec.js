@@ -112,9 +112,16 @@ describe("racer-element", function() {
     
     element.addEventListener("save", function() {
       expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
-      done();
+
+      element.at = null;
+      element.addEventListener("save", function() {
+        expect(element.model.setWasCalledWith).to.deep.equal(["text", "otherText"]);
+        done();
+      })
+      element.child.fire("save");
     })
     element.child.fire("save");
+
   });
 
   it("listens to child's delete events and deletes the model", function(done) {
