@@ -6,20 +6,16 @@
     <link rel="import" href="/base/index.html"/>
   </head>
   <body>
-    <element name="generic-element" attributes="text">
-      <template>
-        <div id="div">{{ text }}</div>
-      </template>
+    <element name="element-with-model" attributes="text">
       <script>
         Polymer.register(this, {
-          text: ""
+          model: {}
         });
       </script>
     </element>
-    <generic-element text="text"></generic-element>
 
     <racer-element id="element">
-      <generic-element id="child"/>
+      <element-with-model id="child"/>
     </racer-element>
 
     <racer-element>

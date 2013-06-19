@@ -32,6 +32,8 @@ module.exports = {
     }
     this.$.container.appendChild(element);
 
+    if (!element.model) element.model = {};
+
     this.update();
   },
   get child() {
@@ -80,25 +82,24 @@ module.exports = {
       self.trigger.apply(self, args);
     });
   },
+  _childModel: {},
   update: function(data) {
     if (!this.child || !this._model) return;
     var data = data || this._model.get(),
     self = this,
-    dashed,
     key;
 
     for (key in data) {
-      dashed = "_" + key;
-      this.child[dashed] = data[key];
-      this.child[key] = null;
-      Object.defineProperty(this.child, key, {
+      this._childModel[key] = data[key];
+      this.child.model[key] = null;
+      Object.defineProperty(this.child.model, key, {
         set: function(value) {
           if (self.at) key = self.at + "." + key;
           self._model.set(key, value);
-          this[dashed] = value;
+          self._childModel[key] = value;
         },
         get: function() {
-          return this[dashed];
+          return self._childModel[key];
         }
       });
     }
@@ -108,6 +109,6 @@ module.exports = {
   },
   onChange: function(name, value) {
     if (!this.child) return;
-    this.child[name] = value;
+    this._childModel[name] = value;
   }
 };

@@ -65,7 +65,7 @@ describe("racer-element", function() {
 
   it("should have set the model and the model's data from the global racer element", function() {
     expect(element.model).to.exist;
-    expect(element.child.text).to.equal("text");
+    expect(element.child.model).to.deep.equal(modelData);
   });
 
   describe("event listening", function() {
@@ -101,7 +101,7 @@ describe("racer-element", function() {
     element = doc.createElement("racer-element");
     element.child = doc.createElement("generic-element");
     element.addEventListener("model:load", function() {
-      expect(element.child.a).to.equal(2);
+      expect(element.child.model.a).to.equal(2);
       done();
     });
     element.model = new Model({a: 2});
@@ -123,14 +123,14 @@ describe("racer-element", function() {
     element.addEventListener("model:load", function() {
       element.at = "a.b";
       model.emit("a.b.text", "change", "otherText");
-      expect(child.text).to.equal("otherText");
+      expect(element.child.model.text).to.equal("otherText");
       done();
     });
     element.model = model;
   });
 
   it("watches the child model for changes and sets the racer model accordingly", function() {
-    element.child.text = "otherText";
+    element.child.model.text = "otherText";
     expect(element.model.setWasCalledWith).to.deep.equal(["a.b.text", "otherText"]);
   });
 
