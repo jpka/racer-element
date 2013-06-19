@@ -13,7 +13,9 @@
       </template>
       <script>
         Polymer.register(this, {
-          model: {}
+          ready: function() {
+            this.model = {};
+          }
         });
       </script>
     </element>

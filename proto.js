@@ -16,6 +16,7 @@ module.exports = {
     if (this.firstElementChild) {
       this.child = this.firstElementChild;
     }
+    this._childModel = {};
   },
   trigger: function() {
     var name = arguments[0],
@@ -93,7 +94,6 @@ module.exports = {
       self.trigger.apply(self, args);
     });
   },
-  _childModel: {},
   update: function(data) {
     var data,
     self = this,
@@ -102,10 +102,10 @@ module.exports = {
     data = data || this._model.get();
 
     for (key in data) {
-      this._childModel[key] = data[key];
-      if (!this.child.model[key] || !Object.getOwnPropertyDescriptor(this.child.model, key).get) {
+      if (!this._childModel[key]) {
         observeChildModelProperty(self, key);
       }
+      this._childModel[key] = data[key];
     }
   },
   onModelLoad: function() {

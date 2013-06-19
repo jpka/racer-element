@@ -111,4 +111,15 @@ describe("racer-element", function() {
     element.del("c");
     expect(element.model.delWasCalledWith).to.deep.equal(["a.b.c"]);
   });
+
+  it("does not replicate data among several instances", function(done) {
+    var element2 = fixtures.window().document.createElement("racer-element");
+    fixtures.window().document.body.appendChild(element2);
+    element2.child = fixtures.window().document.createElement("element-with-model");
+    element2.on("model:load", function() {
+      expect(element.child.model.text).to.equal(modelData.text);
+      done();
+    });
+    element2.model = new Model({text: "text2"});
+  });
 });
