@@ -72,7 +72,7 @@ module.exports = {
     if (model.get(this.at)) {
       this.trigger("model:load");
     } else {
-      model.subscribe(function() {
+      model.subscribe(this.at, function() {
         self.trigger("model:load");
       });
     }

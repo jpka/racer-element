@@ -7,7 +7,8 @@ window.Model = function(modelData) {
     on: function(name, path, cb) {
       this.events[name] = cb;
     },
-    subscribe: function(cb) {
+    subscribe: function(at, cb) {
+      if (arguments.length === 1) cb = at;
       var self = this;
       setTimeout(function() {
         self.data = modelData;
