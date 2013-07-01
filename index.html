@@ -1,35 +1,9 @@
 <element name="racer-element" attributes="at">
   <template>
-    <style>
-      @host {}
-    </style>  
-    <div id="container"></div>
+    <content></content>
   </template>
   <script>
-    require=(function(e,t,n){function i(n,s){if(!t[n]){if(!e[n]){var o=typeof require=="function"&&require;if(!s&&o)return o(n,!0);if(r)return r(n,!0);throw new Error("Cannot find module '"+n+"'")}var u=t[n]={exports:{}};e[n][0].call(u.exports,function(t){var r=e[n][1][t];return i(r?r:t)},u,u.exports)}return t[n].exports}var r=typeof require=="function"&&require;for(var s=0;s<n.length;s++)i(n[s]);return i})({"proto":[function(require,module,exports){
-module.exports=require('KQcwdn');
-},{}],"KQcwdn":[function(require,module,exports){
-function observeChildModelProperty(self, key) {
-  Object.defineProperty(self.child.model, key, {
-    set: function(value) {
-      if (this.turbo) {
-        self.set(key, value);
-      }
-      self._childModel[key] = value;
-    },
-    get: function() {
-      return self._childModel[key];
-    }
-  });
-}
-
-module.exports = {
-  ready: function() {
-    if (this.firstElementChild) {
-      this.child = this.firstElementChild;
-    }
-    this._childModel = {};
-  },
+    Polymer.register(this, {
   trigger: function() {
     var name = arguments[0],
     data = [].slice.call(arguments, 1),
@@ -51,17 +25,15 @@ module.exports = {
     });
   },
   set child(element) {
-    var container = this.$.container;
-
-    while (container.firstElementChild) {
-      container.removeChild(container.firstElementChild);
+    while (this.firstElementChild) {
+      this.removeChild(this.firstElementChild);
     }
-    this.$.container.appendChild(element);
+    this.appendChild(element);
 
     this.update();
   },
   get child() {
-    return this.$.container.firstElementChild;
+    return this.firstElementChild;
   },
   set racer(racer) {
     var self = this;
@@ -95,7 +67,7 @@ module.exports = {
     var resolved = [];
     if (this.at) resolved.push(this.at);
     if (path) resolved.push(path);
-    return resolved.join(".");
+    return resolved.length > 0 ? resolved.join(".") : null;
   },
   del: function(path) {
     this._model.del(this.resolve(path));
@@ -104,18 +76,24 @@ module.exports = {
   set: function(key, value) {
     this._model.set(this.resolve(key), value);
   },
+  onChildSave: function() {
+    this.save();
+  },
+  onChildDelete: function() {
+    this.del();
+  },
   listen: function() {
     var self = this;
 
     if (!this.turbo) {
       this.child.addEventListener("save", function(e) {
         e.stopPropagation();
-        self.save();
+        self.onChildSave();
       });
     }
     this.child.addEventListener("delete", function(e) {
       e.stopPropagation();
-      self.del();
+      self.onChildDelete();
     });
 
     this._model.on("all", "**", function(path, ev, data, oldData) {
@@ -140,16 +118,13 @@ module.exports = {
     data = data || this._model.get();
 
     for (key in data) {
-      if (!this._childModel[key]) {
-        observeChildModelProperty(self, key);
-      }
-      this._childModel[key] = data[key];
+      this.child.model[key] = data[key];
     }
   },
   save: function() {
     var key;
-    for (key in this._childModel) {
-      this.set(key, this._childModel[key]);
+    for (key in this.child.model) {
+      this.set(key, this.child.model[key]);
     }
     this.fire("save");
   },
@@ -161,13 +136,9 @@ module.exports = {
   },
   onChange: function(name, value) {
     if (!this.child) return;
-    this._childModel[name] = value;
+    this.child.model[name] = value;
   }
-};
+});
 
-},{}]},{},[])
-;
-
-    Polymer.register(this, require("proto"));
   </script>
 </element>
