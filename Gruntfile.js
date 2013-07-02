@@ -1,10 +1,12 @@
+var cp = require("child_process");
+
 module.exports = function(grunt) {
   grunt.initConfig({
     replace: {
       build: {
         options: {
           variables: {
-            "script": "<%= grunt.file.read('script.js') %>"
+            "script": "<%= grunt.script %>"
           }
         },
         files: [
@@ -23,9 +25,17 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-watch");
 
   grunt.registerTask("karma", function() {
-    require("child_process").spawn("node_modules/.bin/karma", ["start"], {stdio: "inherit"});
+    cp.spawn("node_modules/.bin/karma", ["start"], {stdio: "inherit"});
   });
 
-  grunt.registerTask("build", ["replace"]);
+  grunt.registerTask("uglifyjs", function() {
+    var done = this.async();
+    cp.exec("node_modules/.bin/uglifyjs script.js -c -m", function(err, stdout) {
+      grunt.script = stdout;
+      done();
+    });
+  });
+
+  grunt.registerTask("build", ["uglifyjs", "replace"]);
   grunt.registerTask("test", ["build", "karma", "watch:build"]);
 }

@@ -14,7 +14,8 @@
     "grunt": "~0.4.1",
     "grunt-replace": "~0.4.4",
     "grunt-contrib-watch": "~0.4.4",
-    "browserify": "~2.18.1"
+    "browserify": "~2.18.1",
+    "uglify-js": "~2.3.6"
   },
   "scripts": {
     "test": "grunt test"
