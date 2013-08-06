@@ -6,5 +6,8 @@
     "**/.*",
     "node_modules",
     "components"
-  ]
+  ],
+  "devDependencies": {
+    "polymer": "~0.0.20130711"
+  }
 }

@@ -2,23 +2,23 @@
 
 <html>
   <head>
-    <script src="/base/node_modules/Polymer/polymer.min.js"></script>
+    <script src="/base/components/polymer/polymer.min.js"></script>
     <script src="/base/test/model.js"></script>
     <link rel="import" href="/base/index.html"/>
   </head>
   <body>
-    <element name="element-with-model" attributes="model">
+    <polymer-element name="element-with-model" attributes="model">
       <template>
         <div>{{ model.text }}</div>
       </template>
       <script>
-        Polymer.register(this, {
+        Polymer("element-with-model", {
           ready: function() {
             this.model = {};
           }
         });
       </script>
-    </element>
+    </polymer-element>
 
     <racer-element id="element">
       <element-with-model id="child"/>
